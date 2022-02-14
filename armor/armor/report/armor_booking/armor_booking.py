@@ -34,7 +34,7 @@ def get_columns(filters):
             "label": _("Sales order"),
             "fieldtype": "Link",
             "fieldname": "name",
-            "options": "Sales order",
+            "options": "Sales Order",
             "width": 200
         },
         {
@@ -73,15 +73,14 @@ def get_columns(filters):
         },
         {
             "label": _("Branch"),
-            "fieldtype": "Data",
+            "fieldtype": "Link",
             "fieldname": "branch_cf",
+            "options": "Branch",
             "width": 150
         },
         {
             "label": _("Created By"),
-            "fieldtype": "Link",
             "fieldname": "owner",
-            "options": "User",
             "width": 120
         },
     ]

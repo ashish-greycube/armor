@@ -21,9 +21,10 @@ def get_data(filters):
 						tsi.name, tsi.posting_date, tsi.customer_name, tsi.customer_group , 
 						tsi.sales_partner , det.warehouse , 
 						tsi.base_net_total , det.nhours, det.cogs, det.cost_of_labor,
-						det.cogs + det.cost_of_labor total_cost, tsi.base_net_total - det.cogs - det.cost_of_labor net_profit,
+						coalesce(det.cogs,0) + coalesce(det.cost_of_labor,0) total_cost, 
+                        tsi.base_net_total - coalesce(det.cogs,0) - coalesce(det.cost_of_labor,0) net_profit,
 						case when tsi.base_net_total > 0 
-						then (tsi.base_net_total - det.cogs - det.cost_of_labor)/tsi.base_net_total 
+						then 100 * (tsi.base_net_total - coalesce(det.cogs,0) - coalesce(det.cost_of_labor,0))/tsi.base_net_total 
 						else 0 end proft_pct
 					from `tabSales Invoice` tsi 
 					inner join (
@@ -50,10 +51,10 @@ def get_data(filters):
 def get_columns(filters):
     columns = [
         {
-            "label": _("Payment Entry"),
+            "label": _("Sales Invoice"),
             "fieldtype": "Link",
             "fieldname": "name",
-            "options": "Payment Entry",
+            "options": "Sales Invoice",
             "width": 200
         },
         {
