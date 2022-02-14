@@ -28,7 +28,7 @@ def get_data(filters):
 						else 0 end proft_pct
 					from `tabSales Invoice` tsi 
 					inner join (
-						select tsii.parent , sum(tge.debit) cogs, sum(tdni.qty) nhours, sum(tdni.qty*10) cost_of_labor, 
+						select tsii.parent , sum(tge.debit) cogs, sum(tdni.qty) nhours, sum(tdni.qty*tdni.rate_per_hour_cf) cost_of_labor, 
 						CONCAT_WS(',',tsii.warehouse) warehouse
 						from `tabSales Invoice Item` tsii
 						left outer join `tabSales Order Item` tsoi on tsoi.parent = tsii.sales_order 

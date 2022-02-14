@@ -15,8 +15,8 @@ def get_data(filters):
     data = frappe.db.sql(
         """
         select 
-            tpe.name, tpe.posting_date ,  tpe.mode_of_payment , tpe.paid_amount , 
-            tper.reference_doctype, tper.reference_name, coalesce(tso.branch_cf,tsi.branch_cf) batch
+            tpe.name, tpe.posting_date ,  tpe.mode_of_payment , tpe.payment_type, tpe.paid_amount , 
+            tper.reference_doctype, tper.reference_name, coalesce(tso.branch_cf,tsi.branch_cf) branch
         from 
             `tabPayment Entry` tpe 
             inner join `tabPayment Entry Reference` tper on tper.parent = tpe.name
@@ -51,6 +51,12 @@ def get_columns(filters):
             "width": 150
         },
         {
+            "label": _("Payment Type"),
+            "fieldtype": "Data",
+            "fieldname": "payment_type",
+            "width": 100
+        },
+        {
             "label": _("Paid Amount"),
             "fieldtype": "Currency",
             "fieldname": "paid_amount",
@@ -71,7 +77,9 @@ def get_columns(filters):
         },
         {
             "label": _("Branch"),
+            "fieldtype": "Link",
             "fieldname": "branch",
+            "options": "Branch",
             "width": 180
         }
     ]
@@ -80,7 +88,7 @@ def get_columns(filters):
 
 
 def get_conditions(filters):
-    conditions = ["where tpe.payment_type = 'Receive'"]
+    conditions = []
 
     if filters.from_date:
         conditions.append("tpe.posting_date >= %(from_date)s")
@@ -88,10 +96,12 @@ def get_conditions(filters):
         conditions.append("tpe.posting_date <= %(to_date)s")
     if filters.mode_of_payment:
         conditions.append("tpe.mode_of_payment <= %(mode_of_payment)s")
+    if filters.payment_type:
+        conditions.append("tpe.payment_type <= %(payment_type)s")
     if filters.branch:
         conditions.append(
             "coalesce(tsi.branch_cf, tso.branch_cf) = %(branch)s")
     if filters.created_by:
         conditions.append("tpe.owner >= %(created_by)s")
 
-    return conditions and " and ".join(conditions) or ""
+    return conditions and " where " + " and ".join(conditions) or ""

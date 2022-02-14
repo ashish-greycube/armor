@@ -24,6 +24,15 @@ frappe.query_reports["Armor Payment"] = {
 			"label": "Mode of Payment",
 			"options": "Mode of Payment",
 		},
+		{
+
+			"fieldname": "payment_type",
+			"fieldtype": "Select",
+			"label": "Payment Type",
+			"options": "\nReceive\nPay",
+			"default": "Receive"
+		}
+
 	],
 
 
