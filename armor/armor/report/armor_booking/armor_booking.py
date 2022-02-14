@@ -63,7 +63,7 @@ def get_columns(filters):
             "label": _("Transaction Date"),
             "fieldtype": "Date",
             "fieldname": "transaction_date",
-            "width": 120
+            "width": 140
         },
         {
             "label": _("Delivery Date"),

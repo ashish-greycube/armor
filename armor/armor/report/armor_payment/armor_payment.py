@@ -54,7 +54,7 @@ def get_columns(filters):
             "label": _("Payment Type"),
             "fieldtype": "Data",
             "fieldname": "payment_type",
-            "width": 100
+            "width": 120
         },
         {
             "label": _("Paid Amount"),
@@ -95,9 +95,9 @@ def get_conditions(filters):
     if filters.to_date:
         conditions.append("tpe.posting_date <= %(to_date)s")
     if filters.mode_of_payment:
-        conditions.append("tpe.mode_of_payment <= %(mode_of_payment)s")
+        conditions.append("tpe.mode_of_payment = %(mode_of_payment)s")
     if filters.payment_type:
-        conditions.append("tpe.payment_type <= %(payment_type)s")
+        conditions.append("tpe.payment_type = %(payment_type)s")
     if filters.branch:
         conditions.append(
             "coalesce(tsi.branch_cf, tso.branch_cf) = %(branch)s")
