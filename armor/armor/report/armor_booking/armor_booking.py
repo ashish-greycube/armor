@@ -22,7 +22,7 @@ def get_data(filters):
 		inner join `tabSales Order Item` tsoi on tsoi.parent = tso.name 
 		inner join tabUser tu on tu.name = tso.owner 
 				{conditions}
-		order by tso.name, tso.transaction_date
+		order by tso.name, tsoi.delivery_date
         """.format(conditions=conditions), filters)
 
     return data
@@ -92,9 +92,9 @@ def get_conditions(filters):
     conditions = []
 
     if filters.from_date:
-        conditions.append("tso.transaction_date >= %(from_date)s")
+        conditions.append("tso.delivery_date >= %(from_date)s")
     if filters.to_date:
-        conditions.append("tso.transaction_date <= %(to_date)s")
+        conditions.append("tso.delivery_date <= %(to_date)s")
 
     if filters.branch:
         conditions.append("tso.branch_cf <= %(branch)s")
