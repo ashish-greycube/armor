@@ -158,7 +158,7 @@ def create_sales_order_and_customer(source_name, target_doc=None,ignore_permissi
 		"Lead": {
 			"doctype": "Sales Order",
 		}}, target_doc, set_missing_values, ignore_permissions=ignore_permissions)
-
+	doclist.run_method('set_missing_values')
 	return doclist
 
 
