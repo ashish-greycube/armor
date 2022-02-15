@@ -148,6 +148,7 @@ def create_sales_order_and_customer(source_name, target_doc=None,ignore_permissi
 	def set_missing_values(source, target):
 		target.customer=customer
 		target.order_type='Sales'
+		target.customer_phone_cf=frappe.db.get_value('Customer', customer, 'customer_phone_cf')
 		if source.guest_group_cf:
 			target.customer_group=source.guest_group_cf
 			max_discount_allowed_cf=frappe.db.get_value('Customer Group', source.guest_group_cf, 'max_discount_allowed_cf')
