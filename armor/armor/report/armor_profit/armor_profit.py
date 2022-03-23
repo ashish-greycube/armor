@@ -28,7 +28,8 @@ def get_data(filters):
 						else 0 end proft_pct
 					from `tabSales Invoice` tsi 
 					inner join (
-						select tsii.parent , sum(tge.debit) cogs, sum(tdni.qty) nhours, sum(tdni.qty*tdni.rate_per_hour_cf) cost_of_labor, 
+						select tsii.parent , sum(tge.debit) cogs, sum(tdni.no_of_hours_cf) nhours, 
+                        sum(tdni.no_of_hours_cf*tdni.rate_per_hour_cf) cost_of_labor, 
 						CONCAT_WS(',',tsii.warehouse) warehouse
 						from `tabSales Invoice Item` tsii
 						left outer join `tabSales Order Item` tsoi on tsoi.parent = tsii.sales_order 
@@ -43,7 +44,11 @@ def get_data(filters):
 			select '', '', '', '','','', sum(fn.base_net_total), sum(fn.nhours), sum(fn.cogs), sum(fn.cost_of_labor),
 			sum(fn.total_cost), sum(fn.net_profit), avg(fn.proft_pct) 
 			from fn
-        """.format(conditions=conditions), filters)
+        """.format(
+            conditions=conditions
+        ),
+        filters,
+    )
 
     return data
 
@@ -55,82 +60,70 @@ def get_columns(filters):
             "fieldtype": "Link",
             "fieldname": "name",
             "options": "Sales Invoice",
-            "width": 200
+            "width": 200,
         },
         {
             "label": _("Posting Date"),
             "fieldtype": "Date",
             "fieldname": "posting_date",
-            "width": 120
+            "width": 120,
         },
         {
             "label": _("Customer"),
             "fieldtype": "Link",
             "fieldname": "customer_name",
             "options": "Customer",
-            "width": 220
+            "width": 220,
         },
-        {
-            "label": _("Customer Group"),
-            "fieldname": "customer_group",
-            "width": 220
-        },
-        {
-            "label": _("Sales Partner"),
-            "fieldname": "sales_partner",
-            "width": 220
-        },
-        {
-            "label": _("Warehouse"),
-            "fieldname": "warehouse",
-            "width": 220
-        },
+        {"label": _("Customer Group"), "fieldname": "customer_group", "width": 220},
+        {"label": _("Sales Partner"), "fieldname": "sales_partner", "width": 220},
+        {"label": _("Warehouse"), "fieldname": "warehouse", "width": 220},
         {
             "label": _("Net Total"),
             "fieldtype": "Currency",
             "fieldname": "base_net_total",
             "options": "currency",
-            "width": 120
+            "width": 120,
         },
         {
             "label": _("Number of Hours"),
             "fieldtype": "Float",
             "fieldname": "qty",
-            "width": 120
+            "width": 120,
         },
         {
             "label": _("Cost of Materials"),
             "fieldtype": "Currency",
             "fieldname": "cogs",
             "options": "currency",
-            "width": 120
+            "width": 120,
         },
         {
             "label": _("Cost of Labor"),
             "fieldtype": "Currency",
             "fieldname": "cost_of_labor",
             "options": "currency",
-            "width": 120
+            "width": 120,
         },
         {
             "label": _("Total Cost"),
             "fieldtype": "Currency",
             "fieldname": "total_cost",
             "options": "currency",
-            "width": 120
+            "width": 120,
         },
         {
             "label": _("Profit"),
             "fieldtype": "Currency",
             "fieldname": "net_profit",
             "options": "currency",
-            "width": 120
+            "width": 120,
         },
         {
             "label": _("Profit Percent"),
             "fieldtype": "Percent",
             "fieldname": "profit_pct",
-            "width": 120
+            "width": 120,
         },
     ]
 
