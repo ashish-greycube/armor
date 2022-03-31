@@ -18,7 +18,7 @@ def get_data(filters):
 			with fn as
 			(
                     select t1.si_name , t1.posting_date , t1.customer_name , t1.customer_group , t1.sales_partner , t1.warehouse ,
-                    t1.base_net_total , t1.cogs , t1.nhours , t1.cost_of_labor , 
+                    t1.base_net_total , t1.nhours , t1.cogs , t1.cost_of_labor , 
                     t1.cogs + t1.cost_of_labor total_cost ,
                     t1.base_net_total - t1.cogs -t1.cost_of_labor net_profit ,
                     case when t1.base_net_total > 0 
