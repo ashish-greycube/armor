@@ -153,6 +153,6 @@ def get_conditions(filters):
     if filters.sales_partner:
         conditions.append("tsi.sales_partner = %(sales_partner)s")
     if filters.customer:
-        conditions.append("tsi.customer <= %(customer)s")
+        conditions.append("tsi.customer = %(customer)s")
 
     return conditions and " where " + " and ".join(conditions) or ""
