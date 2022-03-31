@@ -17,32 +17,42 @@ def get_data(filters):
         """
 			with fn as
 			(
-					select 
-						tsi.name, tsi.posting_date, tsi.customer_name, tsi.customer_group , 
-						tsi.sales_partner , det.warehouse , 
-						tsi.base_net_total , det.nhours, det.cogs, det.cost_of_labor,
-						coalesce(det.cogs,0) + coalesce(det.cost_of_labor,0) total_cost, 
-                        tsi.base_net_total - coalesce(det.cogs,0) - coalesce(det.cost_of_labor,0) net_profit,
-						case when tsi.base_net_total > 0 
-						then 100 * (tsi.base_net_total - coalesce(det.cogs,0) - coalesce(det.cost_of_labor,0))/tsi.base_net_total 
-						else 0 end proft_pct
-					from `tabSales Invoice` tsi 
-					inner join (
-						select tsii.parent , sum(tge.debit) cogs, sum(tdni.no_of_hours_cf) nhours, 
-                        sum(tdni.no_of_hours_cf*tdni.rate_per_hour_cf) cost_of_labor, 
-						CONCAT_WS(',',tsii.warehouse) warehouse
-						from `tabSales Invoice Item` tsii
-						left outer join `tabSales Order Item` tsoi on tsoi.parent = tsii.sales_order 
-						left outer join `tabDelivery Note Item` tdni on tdni.so_detail = tsoi.name
-						left outer join `tabGL Entry` tge on tge.voucher_no = tdni.parent and tdni.expense_account = tge.account 
-						group by tsii.parent
-					) det on det.parent = tsi.name
-			        {conditions}
+                    select t1.si_name , t1.posting_date , t1.customer_name , t1.customer_group , t1.sales_partner , t1.warehouse ,
+                    t1.base_net_total , t1.cogs , t1.nhours , t1.cost_of_labor , 
+                    t1.cogs + t1.cost_of_labor total_cost ,
+                    t1.base_net_total - t1.cogs -t1.cost_of_labor net_profit ,
+                    case when t1.base_net_total > 0 
+                        then 100 * (t1.base_net_total - t1.cogs - t1.cost_of_labor) / t1.base_net_total 
+                        else 0 end profit_pct 
+                    from 
+                    ( 
+                        select t.si_name , 
+                        t.posting_date, t.customer_name, t.customer_group , t.sales_partner , t.warehouse ,
+                        coalesce(max(t.base_net_total),0) base_net_total, 
+                        coalesce(max(tge.debit),0) cogs , 
+                        coalesce(sum(tdni.no_of_hours_cf),0) nhours , 
+                        coalesce(sum(tdni.no_of_hours_cf * tdni.rate_per_hour_cf),0) cost_of_labor 
+                        from 
+                        (
+                            select tsi.name si_name , 
+                            tsi.posting_date, tsi.customer_name, tsi.customer_group , tsi.sales_partner , tsi.base_net_total ,	
+                            tdni.name dn_name , concat_ws(',' , tsii.warehouse) warehouse
+                            from `tabSales Invoice` tsi 
+                            inner join `tabSales Invoice Item` tsii on tsii.parent = tsi.name
+                            left outer join `tabSales Order Item` tsoi on tsoi.parent = tsii.sales_order 
+                            left outer join `tabDelivery Note Item` tdni on tdni.so_detail = tsoi.name 
+                            {conditions}
+                        ) t
+                        left outer JOIN  `tabDelivery Note Item` tdni on tdni.name = t.dn_name 
+                        left outer join `tabGL Entry` tge on tge.voucher_no = tdni.parent and tge.account  = tdni.expense_account	
+                        -- 	where 	t.si_name IN ('ACC-SINV-2022-00312') 
+                        group by t.si_name
+                    ) t1	
 			)
 			select * from fn
 			union all 
-			select '', '', '', '','','', sum(fn.base_net_total), sum(fn.nhours), sum(fn.cogs), sum(fn.cost_of_labor),
-			sum(fn.total_cost), sum(fn.net_profit), avg(fn.proft_pct) 
+			select '', '', '', '', '', '', sum(fn.base_net_total), sum(fn.nhours), sum(fn.cogs), sum(fn.cost_of_labor),
+			sum(fn.total_cost), sum(fn.net_profit), avg(fn.profit_pct) 
 			from fn
         """.format(
             conditions=conditions
@@ -139,7 +149,7 @@ def get_conditions(filters):
         conditions.append("tsi.posting_date <= %(to_date)s")
 
     if filters.warehouse:
-        conditions.append("det.warehouse like  '%%%(warehouse)s%%")
+        conditions.append("tsii.warehouse = %(warehouse)s")
     if filters.sales_partner:
         conditions.append("tsi.sales_partner = %(sales_partner)s")
     if filters.customer:
